@@ -37,7 +37,8 @@ void setup() {
 
 //Main application loop, runs repeatidly
 void loop() {
-  
+  delay(100);
+  cs.getColor();
 }
 
 
