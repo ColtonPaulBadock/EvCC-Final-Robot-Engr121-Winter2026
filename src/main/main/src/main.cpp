@@ -104,6 +104,130 @@ void setup() {
 
 }
 
+
+void motorA(int motorSpeed)           //  function for driving motor A; input -255 to 255
+{
+  if (motorSpeed > 0)                 //  if the motor is given a positive speed; "put the car in drive"
+  {
+    digitalWrite(bin1, HIGH);         //  set pin 1 to high; drive forward
+    digitalWrite(bin2, LOW);          //  set pin 2 to low; don't drive backward
+  }
+  else if (motorSpeed < 0)            //  if the motor is given a negative speed; "put the car in reverse"
+  {
+    digitalWrite(bin1, LOW);          //  set pin 1 to low; don't dive forward
+    digitalWrite(bin2, HIGH);         //  set pin 2 to high; drive backward
+  }
+  else                                //  if the motor is given a speed of zero; "put the car in park"
+  {
+    digitalWrite(bin1, LOW);          //  set pin 1 to low;  don't drive forwad
+    digitalWrite(bin2, LOW);          //  set pin 2 to low; don't drive backward
+  }
+  analogWrite(pnwb, abs(motorSpeed)); //  now that the motor direction is set, drive it at the entered speed
+}
+
+void motorB(int motorSpeed)                           
+{
+  if (motorSpeed > 0)                 //  sets the motor controller to forward direction motion                             
+  {
+    digitalWrite(al1, HIGH);                         
+    digitalWrite(al2, LOW);                         
+  }
+  else if (motorSpeed < 0)            //  sets motor controller to backwards direction               
+  {
+    digitalWrite(al1, LOW);                          
+    digitalWrite(al2, HIGH);                         
+  }
+  else                                //  sets motor controller to no motion                
+  {
+    digitalWrite(al1, LOW);                          
+    digitalWrite(al2, LOW);                          
+  }
+  analogWrite(pnwa, abs(motorSpeed)); //  sends voltage to motor to make spin                
+}
+
+// These are functions to control the motors (movement) of the robot
+
+     void halt()
+     {
+      motorA(0);
+      motorB(0);
+     }
+
+     void goStraight()
+    {
+      motorA(goFast);
+      motorB(goFast);
+    }
+
+    void reverse()
+    {
+      motorA(goFast);
+      motorB(goFast);
+    }
+
+    void turnLeft()
+    {
+      motorA(goFast);
+      motorB(goFast);
+    }
+
+    void turnRight()
+    {
+      motorA(goFast);
+      motorB(goFast);
+    }
+
+    void leftPiv()
+    {
+      motorA(goFast);
+      motorB(-1*goFast);
+    }
+
+    void rightPiv()
+    {
+      motorA(-1*goFast);
+      motorB(goFast);
+    }
+
+
+// This function reads the potentiometer and uses it to set speed or reverse
+unsigned int selectSpd()
+{
+ potVal = analogRead(pot);
+
+  // "Forward" Moving Gears
+   if(potVal >= 171 && potVal < 341)
+   {
+    goFast = -51;
+   }
+   if(potVal >= 341 && potVal < 511)
+   {
+    goFast = -102;
+   }
+   if(potVal >=511 && potVal < 682)
+   {
+    goFast = -153;
+   }
+   if(potVal >=682 && potVal < 852)
+   {
+    goFast = -204;
+   }
+   if(potVal >=852 && potVal <= 1023)
+   {
+    goFast = -255;
+   }
+
+  // Reverse Gear "one speed reverse"
+   if(potVal < 171)
+   {
+    goFast = 255;
+   }
+
+   return(goFast);
+}
+
+
+
 //NOLAN MCGUIRE
 //straight distance function
 float AheadDist(byte trig, byte echo, float interval)
@@ -200,6 +324,9 @@ void loop() {
 
   //Update all our radar data, so we know whats around
   updateRadarPositions();
+
+  //Drive straight for test
+  goStraight();
 }
 
 
