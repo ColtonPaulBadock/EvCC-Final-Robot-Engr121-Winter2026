@@ -3,6 +3,7 @@
  * This system is used to detect color (RGB) values from beneth the robot so
  * we can detect which room it has entered.
  * Holds several utilities to manage and utilize our onboard color sensor
+ * //COLTON PAUL BADOCK
  */
 #include <Arduino.h>
 
