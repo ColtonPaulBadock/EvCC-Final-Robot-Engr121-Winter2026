@@ -31,14 +31,14 @@ Version: 0
 //encoder rightEncoder();
 
  //define trig pins
-byte trigS = 9;
+byte trigS = 7; //ORIGINAL: 9
 byte trigL = 3;
-byte trigR = 6;
+byte trigR = 5; //ORGINAL: 6
 
  //define echo pins
-byte echoS = 8;
+byte echoS = 6; //ORIGINAL: 8
 byte echoL = 2;
-byte echoR = 5;
+byte echoR = 4; //ORGINAL: 5
 
  //create distance variables
 float distS;
@@ -56,6 +56,24 @@ byte ahead = 10;
 byte left = 5;
 byte right = 5;
 
+
+/*
+JACKSONS Driver Variables (Motor driver)
+*/
+const byte bin1 = 8;
+const byte bin2 = 9;
+const byte pnwb = 10; 
+const byte al1 = 13;
+const byte al2 = 12;
+const byte pnwa = 11;  
+// button variables - temp input before sensors are inplace
+const byte leftb = 2;
+const byte rightb = 3;
+// potentiometer analog pin
+const byte pot = 0;
+unsigned int potVal;
+int goFast;
+
 //COLTON PAUL BADOCK
 //Runs on intialization once
 void setup() {
@@ -70,6 +88,16 @@ void setup() {
   pinMode(echoS, INPUT);
   pinMode(echoL, INPUT);
   pinMode(echoR, INPUT);
+
+  //JACKSONS Motor Driver Intialization
+  pinMode(bin1, OUTPUT);
+  pinMode(bin2, OUTPUT);
+  pinMode(pnwb, OUTPUT);
+  pinMode(al1, OUTPUT);
+  pinMode(al2, OUTPUT);
+  pinMode(pnwa, OUTPUT);
+  pinMode(leftb, INPUT_PULLUP);
+  pinMode(rightb, INPUT_PULLUP);
 
   //Intializes the color sensor (if needed)
   //cs.initColorSensor();
@@ -128,16 +156,9 @@ float RightDist(byte trig, byte echo, float interval)
 }
 
 
-int lastPos = 0;
-
-//COLTON PAUL BADOCK
-//Main application loop, runs repeatidly
-void loop() {
-
-  //Monitor the rotations of the left encoder on the left tank
-  //tread; Update the counter
-  //leftEncoder.monitorRotations();
-
+//Nolan McGuire + Colton Paul Badock
+//Updates the radar positions of each radar axis so we know whats around us
+void updateRadarPositions() {
   //call getdistance funcitons 
   distS = AheadDist(trigS, echoS, intervalS);
   /*Serial.print("ahead ");
@@ -166,6 +187,20 @@ void loop() {
 
 }
 
+
+
+int lastPos = 0;
+
+//Main application loop, runs repeatidly
+void loop() {
+
+  //Monitor the rotations of the left encoder on the left tank
+  //tread; Update the counter
+  //leftEncoder.monitorRotations();
+
+  //Update all our radar data, so we know whats around
+  updateRadarPositions();
+}
 
 
 
