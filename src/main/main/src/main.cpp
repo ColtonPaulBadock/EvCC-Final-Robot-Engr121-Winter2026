@@ -71,8 +71,8 @@ const byte leftb = 2;
 const byte rightb = 3;
 // potentiometer analog pin
 const byte pot = 0;
-unsigned int potVal;
-int goFast;
+//unsigned int potVal;
+int goFast = 60;
 
 //COLTON PAUL BADOCK
 //Runs on intialization once
@@ -191,7 +191,7 @@ void motorB(int motorSpeed)
 
 
 // This function reads the potentiometer and uses it to set speed or reverse
-unsigned int selectSpd()
+/*unsigned int selectSpd()
 {
  potVal = analogRead(pot);
 
@@ -224,7 +224,7 @@ unsigned int selectSpd()
    }
 
    return(goFast);
-}
+}*/
 
 
 
@@ -326,7 +326,14 @@ void loop() {
   updateRadarPositions();
 
   //Drive straight for test
-  goStraight();
+  if (distS < 4) {
+    halt();
+    motorA(goFast);
+    delay(1000);
+    halt();
+  } else {
+    goStraight();
+  }
 }
 
 
