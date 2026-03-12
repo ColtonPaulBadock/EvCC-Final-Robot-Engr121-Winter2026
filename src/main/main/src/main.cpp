@@ -231,25 +231,19 @@ void motorB(int motorSpeed)
 //straight distance function
 float getSensorDistance(byte trig, byte echo)
 {
+  digitalWrite(trig, HIGH);               //send out ping
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
 
-  float interval = 0;
-  float dist = interval / 148;
-  byte counter = 0; //Counter to not get stuck in infinite loop
+  float interval = pulseIn(echo, HIGH);         //listen for return ping
 
-  if (dist == 0) {
-    digitalWrite(trig, HIGH);               //Let out a pulse
-    delayMicroseconds(10);
-    digitalWrite(trig, LOW);
-    
-    interval = pulseIn(echo, HIGH);         //measure the echo time
-    
-    dist = interval / 148;
-
+  float dist = interval / 148;            //convert to inches
+  if (dist != 0)
+  {
+  return dist;                            //return only non-zero answers
   }
-
-  //Return the sensors dist
-  return dist;
 }
+
 
 
 
@@ -284,8 +278,5 @@ void loop() {
   //Runs the auto system
   runAuto();
 
-  Serial.print(getSensorDistance(distS, echoS));
+  Serial.println(getSensorDistance(trigS, echoS));
 }
-
-
-
