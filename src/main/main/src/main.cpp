@@ -246,28 +246,6 @@ float getSensorDistance(byte trig, byte echo)
 
 
 
-
-//Runs the autonomous code so the robot can navigate.
-void runAuto() {
-
-  //If something is within 4 inches of the front of the robot, we will begin turning to the left
-  if (distS < 4 && turningAround == 0) {
-
-    //Stop the robot, log that we are turning around.
-    halt();
-    turningAround = 1;
-    autoTimer.startTimer();
-
-  } else if (turningAround == 1 && autoTimer.getTime() < 1000) {
-    turnLeft();
-  } else if (turningAround == 1) {
-    halt();
-    turningAround = 0;
-  }
-}
-
-
-
 int lastPos = 0;
 
 //Main application loop, runs repeatidly
@@ -282,13 +260,11 @@ void loop() {
   
   if (distS < 6)
   {
-    halt();
+    leftPiv();
   }
   if (distS >= 6)
   {
-  goStraight();
+    goStraight();
   }
-  //Serial.println(getSensorDistance(trigL, echoL));
-  //Serial.println(getSensorDistance(trigR, echoR));
   
 }
