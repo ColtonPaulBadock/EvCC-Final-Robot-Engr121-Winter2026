@@ -2,9 +2,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "robot.h" //Our robot system
-#include "colorManager.h" //Color sensor system
-#include "encoders.h" //Encoder system
+//#include "robot.h" //Our robot system
+//#include "colorManager.h" //Color sensor system
+//#include "encoders.h" //Encoder system
 /*
 The main source code for a robot for Project 3 in ENGR121 @ EvCC.
 
@@ -30,7 +30,38 @@ Version: 0
 //encoder leftEncoder(6, 5);
 //encoder rightEncoder();
 
- //define trig pins
+
+//Allows the user to run a timer
+//using the default Arduino timer system.
+class ColtonTimerSystem {
+  private:
+
+    //This will hold the total time
+    //that has passed since the timer
+    //started.
+    long timerStarted = 0;
+  
+  public:
+
+    //Starts the timer;
+    //Can be called to reset the timer
+    void startTimer() {
+      //Store the current milliseconds
+      //since the board started.
+      timerStarted = millis();
+    }
+
+    long getTime() {
+      return millis() - timerStarted;
+    }
+};
+
+
+//Timer for autonomous system
+ColtonTimerSystem autoTimer;
+
+
+//define trig pins
 byte trigS = 7; //ORIGINAL: 9
 byte trigL = 3;
 byte trigR = 5; //ORGINAL: 6
@@ -45,10 +76,6 @@ float distS;
 float distL;
 float distR;
 
- //create interval variables
-float intervalS;
-float intervalL;
-float intervalR;
 
 //Object detection limits
 //In inches; Distance to detect objects
@@ -74,11 +101,20 @@ const byte pot = 0;
 //unsigned int potVal;
 int goFast = 60;
 
+//Autonomus variables.
+bool turningAround = 0; //If we are turning around, this is 1, else 0.
+
+
 //COLTON PAUL BADOCK
 //Runs on intialization once
 void setup() {
   //Initalizes the robot
-  initalizeRobot();
+  //Begin default serial communications to the master PC/Device
+    //at 9600 bit/s
+    Serial.begin(9600);
+
+    //Start I2C communications
+    Wire.begin();
 
   //trig pinmodes
   pinMode(trigS, OUTPUT);
@@ -190,125 +226,55 @@ void motorB(int motorSpeed)
     }
 
 
-// This function reads the potentiometer and uses it to set speed or reverse
-/*unsigned int selectSpd()
-{
- potVal = analogRead(pot);
 
-  // "Forward" Moving Gears
-   if(potVal >= 171 && potVal < 341)
-   {
-    goFast = -51;
-   }
-   if(potVal >= 341 && potVal < 511)
-   {
-    goFast = -102;
-   }
-   if(potVal >=511 && potVal < 682)
-   {
-    goFast = -153;
-   }
-   if(potVal >=682 && potVal < 852)
-   {
-    goFast = -204;
-   }
-   if(potVal >=852 && potVal <= 1023)
-   {
-    goFast = -255;
-   }
-
-  // Reverse Gear "one speed reverse"
-   if(potVal < 171)
-   {
-    goFast = 255;
-   }
-
-   return(goFast);
-}*/
-
-
-
-//NOLAN MCGUIRE
+//NOLAN MCGUIRE + COLTON PAUL BADOCK
 //straight distance function
-float AheadDist(byte trig, byte echo, float interval)
+float getSensorDistance(byte trig, byte echo)
 {
-  digitalWrite(trig, HIGH);               //Let out a pulse
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
 
-  interval = pulseIn(echo, HIGH);         //measure the echo time
-
+  float interval = 0;
   float dist = interval / 148;
-  if (dist != 0)
-  {
-  return dist;                            //only return non-zero values
+  byte counter = 0; //Counter to not get stuck in infinite loop
+
+  while (dist == 0) {
+    digitalWrite(trig, HIGH);               //Let out a pulse
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+    
+    interval = pulseIn(echo, HIGH);         //measure the echo time
+    
+    dist = interval / 148;
+    counter++; //Increment the counter so we can break out if stuck here
+
+    //If the counter is more than 10, escape the loop.
+    if (counter > 10) {
+      break;  
+    }
   }
-}
 
-//NOLAN MCGUIRE
-//left distance function
-float LeftDist(byte trig, byte echo, float interval)
-{
-  digitalWrite(trig, HIGH);               //send out ping
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-
-  interval = pulseIn(echo, HIGH);         //listen for return ping
-
-  float dist = interval / 148;            //convert to inches
-  if (dist != 0)
-  {
-  return dist;                            //return only non-zero answers
-  }
-}
-
-//NOLAN MCGUIRE
-//right distance function
-float RightDist(byte trig, byte echo, float interval)
-{
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-
-  interval = pulseIn(echo, HIGH);
-
-  float dist = interval / 148;
-  if (dist != 0)
-  {
+  //Return the sensors dist
   return dist;
-  }
 }
 
 
-//Nolan McGuire + Colton Paul Badock
-//Updates the radar positions of each radar axis so we know whats around us
-void updateRadarPositions() {
-  //call getdistance funcitons 
-  distS = AheadDist(trigS, echoS, intervalS);
-  /*Serial.print("ahead ");
-  Serial.print(distS);*/
 
-  distL = LeftDist(trigL, echoL, intervalL);
-  /*Serial.print("   left ");
-  Serial.print(distL);*/
+//Runs the autonomous code so the robot can navigate.
+void runAuto() {
 
-  distR = RightDist(trigR, echoR, intervalR);
-  /*Serial.print("   right ");
-  Serial.println(distR);*/
+  //If something is within 4 inches of the front of the robot, we will begin turning to the left
+  if (distS < 4 && turningAround == 0) {
 
-  if (distS < ahead)
-  {
-    Serial.println("there's something in front!!!");
+    //Stop the robot, log that we are turning around.
+    halt();
+    turningAround = 1;
+    autoTimer.startTimer();
+
+  } else if (turningAround == 1 && autoTimer.getTime() < 1000) {
+    turnLeft();
+  } else if (turningAround == 1) {
+    halt();
+    turningAround = 0;
   }
-  if (distL < left)
-  {
-    Serial.println("there's something to the left!!!");
-  }
-  if (distR < right)
-  {
-    Serial.println("there's something to the right!!!");
-  }
-
 }
 
 
@@ -318,22 +284,12 @@ int lastPos = 0;
 //Main application loop, runs repeatidly
 void loop() {
 
-  //Monitor the rotations of the left encoder on the left tank
-  //tread; Update the counter
-  //leftEncoder.monitorRotations();
 
-  //Update all our radar data, so we know whats around
-  updateRadarPositions();
 
-  //Drive straight for test
-  /*if (distS < 4) {
-    halt();
-    turnLeft();
-    delay(1000);
-    halt();
-  } else {
-    goStraight();
-  }*/
+  //Runs the auto system
+  runAuto();
+
+  Serial.print(getSensorDistance(distS, echoS));
 }
 
 
