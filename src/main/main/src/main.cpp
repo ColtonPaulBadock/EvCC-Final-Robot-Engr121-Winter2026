@@ -276,7 +276,19 @@ void loop() {
 
 
   //Runs the auto system
-  runAuto();
-
-  Serial.println(getSensorDistance(trigS, echoS));
+  //runAuto();
+  distS = getSensorDistance(trigS, echoS);
+  Serial.println(distS);
+  
+  if (distS < 6)
+  {
+    halt();
+  }
+  if (distS >= 6)
+  {
+  goStraight();
+  }
+  //Serial.println(getSensorDistance(trigL, echoL));
+  //Serial.println(getSensorDistance(trigR, echoR));
+  
 }
