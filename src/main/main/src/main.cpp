@@ -326,14 +326,14 @@ void loop() {
   updateRadarPositions();
 
   //Drive straight for test
-  if (distS < 4) {
+  /*if (distS < 4) {
     halt();
-    motorA(goFast);
+    turnLeft();
     delay(1000);
     halt();
   } else {
     goStraight();
-  }
+  }*/
 }
 
 
