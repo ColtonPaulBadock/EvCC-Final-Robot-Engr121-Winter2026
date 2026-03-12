@@ -236,7 +236,7 @@ float getSensorDistance(byte trig, byte echo)
   float dist = interval / 148;
   byte counter = 0; //Counter to not get stuck in infinite loop
 
-  while (dist == 0) {
+  if (dist == 0) {
     digitalWrite(trig, HIGH);               //Let out a pulse
     delayMicroseconds(10);
     digitalWrite(trig, LOW);
@@ -244,12 +244,7 @@ float getSensorDistance(byte trig, byte echo)
     interval = pulseIn(echo, HIGH);         //measure the echo time
     
     dist = interval / 148;
-    counter++; //Increment the counter so we can break out if stuck here
 
-    //If the counter is more than 10, escape the loop.
-    if (counter > 10) {
-      break;  
-    }
   }
 
   //Return the sensors dist
