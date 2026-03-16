@@ -79,7 +79,7 @@ float distR;
 
 //Object detection limits
 //In inches; Distance to detect objects
-byte ahead = 10;
+byte ahead = 15;
 byte left = 5;
 byte right = 5;
 
