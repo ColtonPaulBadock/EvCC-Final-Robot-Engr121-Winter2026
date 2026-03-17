@@ -354,7 +354,7 @@ void loop() {
   Serial.print("right: ");
   Serial.println(distR); 
   
-  if (distS < 6)
+  if (distS < 6 || detectFrontBumper())
   {
     leftPiv();
   }
