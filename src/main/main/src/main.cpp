@@ -79,6 +79,8 @@ int FULL_ROTATION = 2048; //the number of steps/position value of one full rotat
 int HALF_ROTATION = 1024; //the number of steps/position value of one half rotation
 int NO_ROTATION = 0;      //the position value of start
 
+int bumperButton = 41;
+
 AccelStepper stepper(FULLSTEP, INONE, INTHREE, INTWO, INFOUR);  //telling the library which pins to use
 
 //Timer for autonomous system
@@ -159,6 +161,10 @@ void setup() {
   pinMode(leftb, INPUT_PULLUP);
   pinMode(rightb, INPUT_PULLUP);
 
+
+  //The button for the front bumper inpact detection
+  pinMode(bumperButton, INPUT_PULLUP);
+
   //Intializes the color sensor (if needed)
   //cs.initColorSensor();
 
@@ -170,6 +176,21 @@ void setup() {
 
 }
 
+
+//Returns true or false if the front bumper is pressed.
+bool detectFrontBumper() {
+
+  //Read the digital bumperButton pin,
+  //return true if we detect a standing voltage
+  //from it.
+  if (digitalRead(bumperButton) == 0) {
+    return true;
+  }
+
+  //If we determined the front bumper was not pressed,
+  //we will return false.
+  return false;
+}
 
 void motorA(int motorSpeed)           //  function for driving motor A; input -255 to 255
 {
@@ -351,6 +372,12 @@ void loop() {
   stepper.run();
   Serial.println(stepper.currentPosition());
   CORRECTPOS(HALF_ROTATION);
+
+
+  //Detect front bumper impact
+  if (detectFrontBumper() == true) {
+    Serial.println("DETECTED FRONT BUMPER!");
+  }
 }
 
   
