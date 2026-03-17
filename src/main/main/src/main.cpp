@@ -1,6 +1,8 @@
 //Default arduino libraries/headers
 #include <Arduino.h>
 #include <Wire.h>
+#include <AccelStepper.h> 
+
 
 //#include "robot.h" //Our robot system
 //#include "colorManager.h" //Color sensor system
@@ -56,6 +58,28 @@ class ColtonTimerSystem {
     }
 };
 
+//ping pong ball launcher
+//ping pong ball launcher Nolan McGuire
+//define motor driver pins
+#define FULLSTEP 4
+#define STEP_PER_REVOLUTION 2048 //sets the 
+
+byte INONE = 22;
+byte INTWO = 24;
+byte INTHREE = 26;
+byte INFOUR = 28;
+
+//motor settings
+int accel = 1000;
+int Mxspd = 300.00;
+int spd = 100;
+
+//position variables
+int FULL_ROTATION = 2048; //the number of steps/position value of one full rotation
+int HALF_ROTATION = 1024; //the number of steps/position value of one half rotation
+int NO_ROTATION = 0;      //the position value of start
+
+AccelStepper stepper(FULLSTEP, INONE, INTHREE, INTWO, INFOUR);  //telling the library which pins to use
 
 //Timer for autonomous system
 ColtonTimerSystem autoTimer;
@@ -79,7 +103,7 @@ float distR;
 
 //Object detection limits
 //In inches; Distance to detect objects
-byte ahead = 15;
+byte ahead = 10;
 byte left = 5;
 byte right = 5;
 
@@ -137,6 +161,12 @@ void setup() {
 
   //Intializes the color sensor (if needed)
   //cs.initColorSensor();
+
+  //ping pong ball launcher
+  //stepper motor
+  stepper.setMaxSpeed(Mxspd);       //max speed
+  stepper.setAcceleration(accel);   //acceleration
+  stepper.setSpeed(spd);            //actual speed
 
 }
 
@@ -225,6 +255,22 @@ void motorB(int motorSpeed)
       motorB(goFast);
     }
 
+//ping pong ball launcher Nolan McGuire
+
+void ROTATE(int dist)
+{
+  stepper.move(dist);       //move the stepper 1/2 rotation 
+}
+void CORRECTPOS(int TPOS)
+{
+  int CPOS = stepper.currentPosition();
+  if(CPOS > TPOS)           //if the motor overshoots target position
+  {
+    stepper.moveTo(TPOS);   //move back to target position
+    stepper.run();
+    stepper.setCurrentPosition(0);   //redefine position as 0
+  } 
+}
 
 
 //NOLAN MCGUIRE + COLTON PAUL BADOCK
@@ -246,6 +292,28 @@ float getSensorDistance(byte trig, byte echo)
 
 
 
+
+//Runs the autonomous code so the robot can navigate.
+/*void runAuto() {
+
+  //If something is within 4 inches of the front of the robot, we will begin turning to the left
+  if (distS < 4 && turningAround == 0) {
+
+    //Stop the robot, log that we are turning around.
+    halt();
+    turningAround = 1;
+    autoTimer.startTimer();
+
+  } else if (turningAround == 1 && autoTimer.getTime() < 1000) {
+    turnLeft();
+  } else if (turningAround == 1) {
+    halt();
+    turningAround = 0;
+  }
+}*/
+
+
+
 int lastPos = 0;
 
 //Main application loop, runs repeatidly
@@ -256,7 +324,14 @@ void loop() {
   //Runs the auto system
   //runAuto();
   distS = getSensorDistance(trigS, echoS);
+  Serial.print("ahead: ");
   Serial.println(distS);
+  distL = getSensorDistance(trigL, echoL);
+  Serial.print("left: "); 
+  Serial.println(distL);
+  distR = getSensorDistance(trigR, echoR);
+  Serial.print("right: ");
+  Serial.println(distR); 
   
   if (distS < 6)
   {
@@ -264,7 +339,18 @@ void loop() {
   }
   if (distS >= 6)
   {
-    goStraight();
+  goStraight();
   }
+  //Serial.println(getSensorDistance(trigL, echoL));
+  //Serial.println(getSensorDistance(trigR, echoR));
   
+  if (distS > 25)                     //if pressed
+  {
+  ROTATE(HALF_ROTATION); 
+  }
+  stepper.run();
+  Serial.println(stepper.currentPosition());
+  CORRECTPOS(HALF_ROTATION);
 }
+
+  
