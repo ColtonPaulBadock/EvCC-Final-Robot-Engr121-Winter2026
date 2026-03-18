@@ -1,37 +1,17 @@
-//Default arduino libraries/headers
+/*Whole Code Set v5
+ * Date: 3/18/2026
+ * AUTHORS:
+ * Colton Paul Badock
+ * Nolan McGuire
+ * Jackson Black
+ * Julio Martinez
+ * 
+ * Description: Use fixed left dist. sensor. 
+ */
+//                                    Libraries/headers
 #include <Arduino.h>
 #include <Wire.h>
 #include <AccelStepper.h> 
-
-
-//#include "robot.h" //Our robot system
-//#include "colorManager.h" //Color sensor system
-//#include "encoders.h" //Encoder system
-/*
-The main source code for a robot for Project 3 in ENGR121 @ EvCC.
-
-AUTHORS:
-Colton Paul Badock
-Nolan McGuire
-Jackson Black
-Julio Martinez
-
-Created: 2/25/2026
-Version: 0
-*/
-
-
-//Easily make a Vector2f on the FLY!
-//Vector2f test(10.0f, 124563.7f);
-
-//Our color sensor
-//color_sensor cs;
-
-//The encoders (as if we are looking from the back of the tank/robot
-//forward)
-//encoder leftEncoder(6, 5);
-//encoder rightEncoder();
-
 
 //Allows the user to run a timer
 //using the default Arduino timer system.
@@ -88,13 +68,13 @@ ColtonTimerSystem autoTimer;
 
 
 //define trig pins
-byte trigS = 7; //ORIGINAL: 9
-byte trigL = 3;
+byte trigS = 52; //ORIGINAL: 9
+byte trigL = 50;
 byte trigR = 5; //ORGINAL: 6
 
  //define echo pins
-byte echoS = 6; //ORIGINAL: 8
-byte echoL = 2;
+byte echoS = 53; //ORIGINAL: 8
+byte echoL = 51;
 byte echoR = 4; //ORGINAL: 5
 
  //create distance variables
@@ -164,9 +144,6 @@ void setup() {
 
   //The button for the front bumper inpact detection
   pinMode(bumperButton, INPUT_PULLUP);
-
-  //Intializes the color sensor (if needed)
-  //cs.initColorSensor();
 
   //ping pong ball launcher
   //stepper motor
@@ -311,57 +288,43 @@ float getSensorDistance(byte trig, byte echo)
   }
 }
 
-
-
-
-//Runs the autonomous code so the robot can navigate.
-/*void runAuto() {
-
-  //If something is within 4 inches of the front of the robot, we will begin turning to the left
-  if (distS < 4 && turningAround == 0) {
-
-    //Stop the robot, log that we are turning around.
-    halt();
-    turningAround = 1;
-    autoTimer.startTimer();
-
-  } else if (turningAround == 1 && autoTimer.getTime() < 1000) {
-    turnLeft();
-  } else if (turningAround == 1) {
-    halt();
-    turningAround = 0;
-  }
-}*/
-
-
-
-int lastPos = 0;
-
 //Main application loop, runs repeatidly
 void loop() {
-
-
-
-  //Runs the auto system
-  //runAuto();
-  distS = getSensorDistance(trigS, echoS);
-  Serial.print("ahead: ");
-  Serial.println(distS);
-  distL = getSensorDistance(trigL, echoL);
-  Serial.print("left: "); 
-  Serial.println(distL);
-  distR = getSensorDistance(trigR, echoR);
-  Serial.print("right: ");
-  Serial.println(distR); 
   
-  if (distS < 6 || detectFrontBumper())
-  {
-    leftPiv();
-  }
+  distS = getSensorDistance(trigS, echoS);
+  /*Serial.print("ahead: ");
+  Serial.println(distS);*/
+  distL = getSensorDistance(trigL, echoL);
+  /*Serial.print("left: "); 
+  Serial.println(distL);*/
+  distR = getSensorDistance(trigR, echoR);
+ /* Serial.print("right: ");
+  Serial.println(distR);*/ 
+  
   if (distS >= 6)
   {
   goStraight();
+  Serial.println("goin straight");
   }
+  if (distS < 6)
+  {
+    if (distL < 6)
+    {
+      leftPiv();
+      Serial.println("turnin left");
+    }
+    if (distR < 6)
+    {
+      rightPiv();
+      Serial.println("turnin right");
+    }
+    else if (distL == distR)
+    {
+      reverse();
+      Serial.println("backin up");
+    }
+  }
+  
   //Serial.println(getSensorDistance(trigL, echoL));
   //Serial.println(getSensorDistance(trigR, echoR));
   
@@ -379,5 +342,3 @@ void loop() {
     Serial.println("DETECTED FRONT BUMPER!");
   }
 }
-
-  
