@@ -243,14 +243,14 @@ void motorB(int motorSpeed)
 
     void leftPiv()
     {
-      motorA(goFast);
-      motorB(-1*goFast);
+      motorA(-1*goFast);
+      motorB(goFast);
     }
 
     void rightPiv()
     {
-      motorA(-1*goFast);
-      motorB(goFast);
+      motorA(goFast);
+      motorB(-1*goFast);
     }
 
 //ping pong ball launcher Nolan McGuire
@@ -328,7 +328,7 @@ void runAuto() {
     //If its action "auto_action_turnLeft"; We will run it right here
     if (auto_action_turnLeft == 1 && firstRun == 1) {
       //Pivot left until our timer is more than "action_turnLeft_time"
-      rightPiv();
+      leftPiv();
       actionRunTime.startTimer();
       firstRun = 0; //Set "firstRun" status to false, so we know
       //we already ran this action atleast once, we will set this back
@@ -356,7 +356,7 @@ void runAuto() {
       firstRun = 1;
     } else if (auto_action_turnRight == 1  && firstRun == 1) {
       //Pivot right until our timer is more than "action_turnRight_time"
-      leftPiv();
+      rightPiv();
       actionRunTime.startTimer();
       firstRun = 0;//Set "firstRun" status to false, so we know
       //we already ran this action atleast once, we will set this back
