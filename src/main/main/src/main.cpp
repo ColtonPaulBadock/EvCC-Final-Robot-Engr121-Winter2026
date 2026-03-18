@@ -333,12 +333,17 @@ void runAuto() {
       firstRun = 0; //Set "firstRun" status to false, so we know
       //we already ran this action atleast once, we will set this back
       //to true for the next action once this one is complete.
+      Serial.println("Started turning left");
 
 
     //Once the action is complete, reset us to keep checking for
     //driving forward at "ID: 78293474"
     } else if (auto_action_turnLeft == 1 && actionRunTime.getTime() > auto_action_turnLeftTime) {
       
+      Serial.println("stopped turning left");
+      Serial.println(actionRunTime.getTime());
+
+
       //Stop all motors, then set our specific action "auto_action_turnLeft" to false,
       //so we know we are no longer turning left. Then set our active action status
       //"auto_action_active" to false, so we know we are not running an action, and can
@@ -359,11 +364,14 @@ void runAuto() {
       firstRun = 0;//Set "firstRun" status to false, so we know
       //we already ran this action atleast once, we will set this back
       //to true for the next action once this one is complete.
+      Serial.println("Started turning right");
 
 
     //Once the action is complete, reset us to keep checking for
     //driving forward at "ID: 78293474"
     } else if (auto_action_turnRight == 1 && actionRunTime.getTime() > auto_action_turnRightTime) {
+
+      Serial.println("stopped turning right");
 
       //Stop all motors, then set our specific action "auto_action_turnRight" to false,
       //so we know we are no longer turning right. Then set our active action status
@@ -395,7 +403,7 @@ void runAuto() {
 
     //If we see that the distS (distance in front) is less than the "ahead"
     //threshold, we will park the robot and make a descision.
-  } else if (distS =< ahead) {
+  } else if (distS <= ahead) {
 
     //Park the robot 
     halt();
