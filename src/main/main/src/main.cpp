@@ -85,7 +85,7 @@ float distR;
 
 //Object detection limits
 //In inches; Distance to detect objects
-byte ahead = 10;
+byte ahead = 8;
 byte left = 5;
 byte right = 5;
 
@@ -288,57 +288,151 @@ float getSensorDistance(byte trig, byte echo)
   }
 }
 
+
+
+
+//Boolean for an auto action.
+//We will skip checking distances if we are in an action in "runAuto()", (atleast for setting our actions).
+//-------------
+//VALUES:
+//0 -> not in action
+//1 -> in an action
+bool auto_action_active = 0;
+//-----------------
+//-----------------
+//-----------------
+//List of our actions, these are the actions our robot can perform.
+//-----
+//"auto_action_turnLeft" -> If true, we are turning left, else if, we are not in the action
+//"auto_action_turnRight" -> If true, we are turning right, else if, we are not in the action
+bool auto_action_turnLeft = 0;
+bool auto_action_turnRight = 0;
+//
+ColtonTimerSystem actionRunTime;
+bool firstRun = 1;
+
+/*
+Colton Paul Badock; Nolan McQuire
+------------------
+
+Robots autonomous function, here we will run auto
+for the robot based on sensor values like "distS", "distL", etc
+*/
+void runAuto() {
+
+  //If we are actively in an action, we will run said action here
+  if (auto_action_active == 1) {
+
+    //If its action "auto_action_turnLeft"; We will run it right here
+    if (auto_action_turnLeft == 1 && firstRun == 1) {
+      //Pivot left until our timer is more than "action_turnLeft_time"
+      leftPiv();
+      actionRunTime.startTimer();
+      firstRun = 0; //Set "firstRun" status to false, so we know
+      //we already ran this action atleast once, we will set this back
+      //to true for the next action once this one is complete.
+
+
+    //Once the action is complete, reset us to keep checking for
+    //driving forward at "ID: 78293474"
+    } else if (auto_action_turnLeft == 1 && actionRunTime.getTime() > time) {
+      
+      //Stop all motors, then set our specific action "auto_action_turnLeft" to false,
+      //so we know we are no longer turning left. Then set our active action status
+      //"auto_action_active" to false, so we know we are not running an action, and can
+      //perform regular auto operations driving forward at "ID: 78293474".
+      //Finally, set our first run status to true, so we can perform our first
+      //run actions on the next action for the first time we run said action.
+      halt();
+      auto_action_turnLeft = 0;
+      auto_action_active = 0;
+      firstRun = 1;
+    }
+
+    //If its action "auto_action_turnRight"; We will run it right here
+    if (auto_action_turnRight == 1  && firstRun == 1) {
+      //Pivot right until our timer is more than "action_turnRight_time"
+      rightPiv();
+      actionRunTime.startTimer();
+      firstRun = 0;//Set "firstRun" status to false, so we know
+      //we already ran this action atleast once, we will set this back
+      //to true for the next action once this one is complete.
+
+
+    //Once the action is complete, reset us to keep checking for
+    //driving forward at "ID: 78293474"
+    } else if (auto_action_turnRight == 1 && actionRunTime.getTime() < time) {
+
+      //Stop all motors, then set our specific action "auto_action_turnRight" to false,
+      //so we know we are no longer turning right. Then set our active action status
+      //"auto_action_active" to false, so we know we are not running an action, and can
+      //perform regular auto operations driving forward at "ID: 78293474".
+      //Finally, set our first run status to true, so we can perform our first
+      //run actions on the next action for the first time we run said action.
+      halt();
+      auto_action_turnRight = 0;
+      auto_action_active = 0;
+      firstRun = 1;
+    }
+
+  }
+
+  //"ID: 78293474"
+  //If the front is clear for "ahead" amount of inches,
+  //we perform this logic
+  //------
+  //If an auto action is active, we will not check our sensors, since
+  //we are actively performing and action elsewere.
+  if (distS > ahead && auto_action_active == 0) {
+
+    //Travel in the straight direction while the front is clear
+    //for "ahead" amount of inches
+    goStraight();
+
+
+
+    //If we see that the distS (distance in front) is less than the "ahead"
+    //threshold, we will park the robot and make a descision.
+  } else if (distS =< ahead) {
+
+    //Park the robot 
+    halt();
+
+    //Check the side distances, depending on which on is 
+    //greater, we will set our action to turn to the side with the
+    //most persumed distance
+    if (distL > distR) {
+      auto_action_active = 1;
+      auto_action_turnLeft = 1;
+    } else if (distL < distR) {
+      auto_action_active = 1;
+      auto_action_turnRight = 1;
+    //If the values are equal or its unclear, we will just turn left
+    } else {
+      auto_action_active = 1;
+      auto_action_turnLeft = 1;
+    }
+
+  }
+
+}
+
+
 //Main application loop, runs repeatidly
 void loop() {
   
+  //Checks all the sensors on board the robot, updating us with the lastest
+  //values before all autonomous logic
   distS = getSensorDistance(trigS, echoS);
-  /*Serial.print("ahead: ");
-  Serial.println(distS);*/
   distL = getSensorDistance(trigL, echoL);
-  /*Serial.print("left: "); 
-  Serial.println(distL);*/
   distR = getSensorDistance(trigR, echoR);
- /* Serial.print("right: ");
-  Serial.println(distR);*/ 
   
-  if (distS >= 6)
-  {
-  goStraight();
-  Serial.println("goin straight");
-  }
-  if (distS < 6)
-  {
-    if (distL < 6)
-    {
-      leftPiv();
-      Serial.println("turnin left");
-    }
-    if (distR < 6)
-    {
-      rightPiv();
-      Serial.println("turnin right");
-    }
-    else if (distL == distR)
-    {
-      reverse();
-      Serial.println("backin up");
-    }
-  }
-  
-  //Serial.println(getSensorDistance(trigL, echoL));
-  //Serial.println(getSensorDistance(trigR, echoR));
-  
-  if (distS > 25)                     //if pressed
-  {
-  ROTATE(HALF_ROTATION); 
-  }
-  stepper.run();
-  Serial.println(stepper.currentPosition());
-  CORRECTPOS(HALF_ROTATION);
 
+  //Run our autonomous
+  runAuto();
+  
 
-  //Detect front bumper impact
-  if (detectFrontBumper() == true) {
-    Serial.println("DETECTED FRONT BUMPER!");
-  }
 }
+
+
+
