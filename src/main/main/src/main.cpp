@@ -306,9 +306,9 @@ bool auto_action_active = 0;
 //"auto_action_turnLeft" -> If true, we are turning left, else if, we are not in the action
 //"auto_action_turnRight" -> If true, we are turning right, else if, we are not in the action
 bool auto_action_turnLeft = 0;
-int auto_action_turnLeftTime = 500;
+int auto_action_turnLeftTime = 1000;
 bool auto_action_turnRight = 0;
-int auto_action_turnRightTime = 500;
+int auto_action_turnRightTime = 1000;
 //
 ColtonTimerSystem actionRunTime;
 bool firstRun = 1;
@@ -354,10 +354,7 @@ void runAuto() {
       auto_action_turnLeft = 0;
       auto_action_active = 0;
       firstRun = 1;
-    }
-
-    //If its action "auto_action_turnRight"; We will run it right here
-    if (auto_action_turnRight == 1  && firstRun == 1) {
+    } else if (auto_action_turnRight == 1  && firstRun == 1) {
       //Pivot right until our timer is more than "action_turnRight_time"
       rightPiv();
       actionRunTime.startTimer();
@@ -403,7 +400,7 @@ void runAuto() {
 
     //If we see that the distS (distance in front) is less than the "ahead"
     //threshold, we will park the robot and make a descision.
-  } else if (distS <= ahead) {
+  } else if (distS <= ahead && auto_action_active == 0) {
 
     //Park the robot 
     halt();
@@ -430,7 +427,7 @@ void runAuto() {
 
 //Main application loop, runs repeatidly
 void loop() {
-  
+
   //Checks all the sensors on board the robot, updating us with the lastest
   //values before all autonomous logic
   distS = getSensorDistance(trigS, echoS);
