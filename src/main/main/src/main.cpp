@@ -309,9 +309,13 @@ bool auto_action_turnLeft = 0;
 int auto_action_turnLeftTime = 1000;
 bool auto_action_turnRight = 0;
 int auto_action_turnRightTime = 1000;
-//
+//The timer for running actions
 ColtonTimerSystem actionRunTime;
 bool firstRun = 1;
+//The threshold for detecting ourselves scraping against a wall while driving
+//straight, we will pivot off of it if detected within this threashold
+//from the left or right sensor
+int threshhold_scraping_wall = 2;
 
 /*
 Colton Paul Badock; Nolan McQuire
@@ -396,6 +400,13 @@ void runAuto() {
     //for "ahead" amount of inches
     goStraight();
 
+    //If we are scraping any wall, get off the wall by pivoting
+    //away from it
+    if (distL < threshhold_scraping_wall) {
+      rightPiv();
+    } else if (distR < threshhold_scraping_wall) {
+      leftPiv();
+    }
 
 
     //If we see that the distS (distance in front) is less than the "ahead"
