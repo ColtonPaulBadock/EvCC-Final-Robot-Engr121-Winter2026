@@ -306,9 +306,9 @@ bool auto_action_active = 0;
 //"auto_action_turnLeft" -> If true, we are turning left, else if, we are not in the action
 //"auto_action_turnRight" -> If true, we are turning right, else if, we are not in the action
 bool auto_action_turnLeft = 0;
-int auto_action_turnLeftTime = 1000;
+int auto_action_turnLeftTime = 500;
 bool auto_action_turnRight = 0;
-int auto_action_turnRightTime = 1000;
+int auto_action_turnRightTime = 500;
 //The timer for running actions
 ColtonTimerSystem actionRunTime;
 bool firstRun = 1;
