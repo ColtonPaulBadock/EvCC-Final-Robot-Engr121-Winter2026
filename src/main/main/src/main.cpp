@@ -113,7 +113,7 @@ const byte rightb = 3;
 // potentiometer analog pin
 const byte pot = 0;
 //unsigned int potVal;
-int goFast = 120;
+int goFast = 80;
 
 //Autonomus variables.
 bool turningAround = 0; //If we are turning around, this is 1, else 0.
