@@ -38,6 +38,14 @@ class ColtonTimerSystem {
     }
 };
 
+#define s0 49        //Module pins  wiring
+#define s1 37
+#define s2 25
+#define s3 29
+#define out 27
+
+int  Red=0, Blue=0, Green=0;  //RGB values 
+
 //ping pong ball launcher
 //ping pong ball launcher Nolan McGuire
 //define motor driver pins
@@ -141,6 +149,14 @@ void setup() {
   pinMode(leftb, INPUT_PULLUP);
   pinMode(rightb, INPUT_PULLUP);
 
+  //Intialize color sensor
+  pinMode(s0,OUTPUT);    //pin modes
+  pinMode(s1,OUTPUT);
+  pinMode(s2,OUTPUT);
+  pinMode(s3,OUTPUT);
+  pinMode(out,INPUT);
+  digitalWrite(s0,HIGH);
+  digitalWrite(s1,HIGH);
 
   //The button for the front bumper inpact detection
   pinMode(bumperButton, INPUT_PULLUP);
@@ -153,6 +169,19 @@ void setup() {
 
 }
 
+void GetColors()
+{
+  digitalWrite(s2,  LOW);
+  digitalWrite(s3, LOW);
+  Red = pulseIn(out, digitalRead(out) == HIGH ? LOW : HIGH);
+  delay(20);
+  digitalWrite(s3, HIGH);
+  Blue = pulseIn(out, digitalRead(out) == HIGH ? LOW  : HIGH);
+  delay(20);
+  digitalWrite(s2, HIGH);
+  Green = pulseIn(out,  digitalRead(out) == HIGH ? LOW : HIGH);
+  delay(20);
+}
 
 //Returns true or false if the front bumper is pressed.
 bool detectFrontBumper() {
@@ -443,6 +472,20 @@ void runAuto() {
 }
 
 
+//Shoots the launcher during auto if applicable
+void shootLauncher() {
+
+  //Update the colors
+  GetColors();
+
+  //If we see red, shoot the launcher
+  if (Red < 30) {
+    ROTATE(HALF_ROTATION);
+  }
+
+}
+
+
 //Main application loop, runs repeatidly
 void loop() {
 
@@ -456,6 +499,8 @@ void loop() {
   //Run our autonomous
   runAuto();
   
+  //Shoot the launcher during auto
+  shootLauncher();
 
 }
 
