@@ -472,19 +472,6 @@ void runAuto() {
 }
 
 
-//Shoots the launcher during auto if applicable
-void shootLauncher() {
-
-  //Update the colors
-  GetColors();
-
-  //If we see red, shoot the launcher
-  if (Red < 60) {
-    ROTATE(HALF_ROTATION);
-  }
-
-}
-
 
 //Main application loop, runs repeatidly
 void loop() {
@@ -498,11 +485,7 @@ void loop() {
 
   //Run our autonomous
   runAuto();
-  
-  //Shoot the launcher during auto
-  shootLauncher();
 
 }
-
 
 
