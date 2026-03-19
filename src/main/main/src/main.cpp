@@ -428,7 +428,7 @@ void runAuto() {
     //If the values are equal or its unclear, we will pick a random direction to turn
     } else {
 
-      //Randomly pick a direction to turn
+      //Randomly pick a direction to turn//
       if (random(1, 10) > 5) {
         auto_action_active = 1;
         auto_action_turnLeft = 1;
