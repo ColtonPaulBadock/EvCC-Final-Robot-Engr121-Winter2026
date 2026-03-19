@@ -425,10 +425,17 @@ void runAuto() {
     } else if (distL < distR) {
       auto_action_active = 1;
       auto_action_turnRight = 1;
-    //If the values are equal or its unclear, we will just turn left
+    //If the values are equal or its unclear, we will pick a random direction to turn
     } else {
-      auto_action_active = 1;
-      auto_action_turnLeft = 1;
+
+      //Randomly pick a direction to turn
+      if (random(1, 10) > 5) {
+        auto_action_active = 1;
+        auto_action_turnLeft = 1;
+      } else {
+        auto_action_active = 1;
+        auto_action_turnRight = 1;
+      }
     }
 
   }
