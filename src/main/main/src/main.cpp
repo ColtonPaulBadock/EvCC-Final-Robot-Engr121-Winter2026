@@ -479,7 +479,7 @@ void shootLauncher() {
   GetColors();
 
   //If we see red, shoot the launcher
-  if (Red < 30) {
+  if (Red < 60) {
     ROTATE(HALF_ROTATION);
   }
 
